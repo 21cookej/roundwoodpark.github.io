@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Platform</title>
+    <style>
+        .account-section { display: none; }
+        #outputTerminal { background: #f4f4f4; padding: 10px; margin-top: 10px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome to the Classroom Platform</h1>
+    <form id="emailForm">
+        <label for="email">Email:</label>
+        <input type="email" id="email" required>
+        <button type="button" onclick="checkAccountType()">Submit</button>
+    </form>
+
+    <!-- Sections for Teacher and Student Accounts -->
+    <div id="studentAccount" class="account-section">
+        <h2>Student Account</h2>
+        <button onclick="displayJoinRoom()">Join Classroom</button>
+    </div>
+
+    <div id="teacherAccount" class="account-section">
+        <h2>Teacher Account</h2>
+        <button onclick="displayCreateRoom()">Create Room</button>
+        <button onclick="displayJoinRoom()">Join Room</button>
+    </div>
+
+    <!-- Room Creation Section (Teacher Only) -->
+    <div id="createRoomSection" class="account-section">
+        <h2>Create a Classroom</h2>
+        <input type="text" id="classroomCode" placeholder="Enter or generate room code" maxlength="7">
+        <button onclick="generateCode()">Generate Random Code</button>
+        <button onclick="hostRoom()">Host</button>
+    </div>
+
+    <!-- Room Joining Section (Student and Teacher) -->
+    <div id="joinRoomSection" class="account-section">
+        <h2>Join a Classroom</h2>
+        <input type="text" id="joinCode" placeholder="Enter room code" maxlength="7">
+        <button onclick="joinRoom()">Join Room</button>
+    </div>
+
+    <!-- Student Room Section -->
+    <div id="studentRoomSection" class="account-section">
+        <h2>Student Room</h2>
+        <textarea id="pythonCodeEditor" placeholder="Type your Python code here..."></textarea>
+        <button onclick="runCode()">Run</button>
+        <button onclick="submitCode()">Submit</button>
+        <pre id="outputTerminal"></pre>
+    </div>
+
+    <!-- Teacher Room Management Section -->
+    <div id="teacherRoomSection" class="account-section">
+        <h2>Teacher Room</h2>
+        <p>Students in Room:</p>
+        <ul id="studentList">
+            <!-- This list will display students and their submission statuses -->
+        </ul>
+    </div>
+
+    <script>
+        function checkAccountType() {
+            const emailInput = document.getElementById('email').value;
+            const studentAccount = document.getElementById('studentAccount');
+            const teacherAccount = document.getElementById('teacherAccount');
+            const studentYears = ['20', '21', '22', '23', '24'];
+            const isStudent = studentYears.some(year => emailInput.includes(year));
+            
+            // Hide both sections and show only the relevant one
+            studentAccount.style.display = 'none';
+            teacherAccount.style.display = 'none';
+            
+            if (isStudent) {
+                studentAccount.style.display = 'block';
+            } else {
+                teacherAccount.style.display = 'block';
+            }
+        }
+
+        function displayCreateRoom() {
+            document.getElementById('createRoomSection').style.display = 'block';
+            document.getElementById('joinRoomSection').style.display = 'none';
+        }
+
+        function displayJoinRoom() {
+            document.getElementById('createRoomSection').style.display = 'none';
+            document.getElementById('joinRoomSection').style.display = 'block';
+        }
+
+        function generateCode() {
+            let code = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            const length = Math.floor(Math.random() * 3) + 5; // 5 to 7 characters
+            for (let i = 0; i < length; i++) {
+                code += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            document.getElementById('classroomCode').value = code;
+        }
+
+        async function hostRoom() {
+            const code = document.getElementById('classroomCode').value;
+            if (!/^[A-Z0-9]{5,7}$/.test(code)) {
+                alert("Code must be 5–7 characters, uppercase letters, and numbers only.");
+                return;
+            }
+            // Store the room in your backend (e.g., Firebase) and mark the teacher as the host
+            document.getElementById('teacherRoomSection').style.display = 'block';
+            document.getElementById('createRoomSection').style.display = 'none';
+        }
+
+        function joinRoom() {
+            const joinCode = document.getElementById('joinCode').value;
+            // Check room code in backend and join room
+            document.getElementById('studentRoomSection').style.display = 'block';
+            document.getElementById('joinRoomSection').style.display = 'none';
+        }
+
+        async function runCode() {
+            const code = document.getElementById('pythonCodeEditor').value;
+            // Call an external API to execute Python code and display output
+            document.getElementById('outputTerminal').innerText = "Python Output: \n" + code;  // Placeholder
+        }
+
+        async function submitCode() {
+            const code = document.getElementById('pythonCodeEditor').value;
+            // Submit the code to the backend
+            alert("Submitted for review!");
+            document.getElementById('studentRoomSection').innerHTML = "<p>Your code is being reviewed...</p>";
+        }
+
+        function setupTeacherRoomListeners() {
+            // Listen for student submissions in the backend and update the studentList in real-time
+            const studentList = document.getElementById('studentList');
+            // Placeholder students (for demonstration)
+            studentList.innerHTML = "<li>Student A - Submitted</li><li>Student B - In Progress</li>";
+        }
+    </script>
+
+</body>
+</html>
